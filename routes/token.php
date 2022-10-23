@@ -17,7 +17,10 @@ use Ramsey\Uuid\Uuid;
 use Firebase\JWT\JWT;
 use Tuupola\Base62;
 
-$app->post("/token", function ($request, $response, $arguments) {
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+
+$app->post("/token", function (Request $request, Response $response, $arguments) {
     $requested_scopes = $request->getParsedBody() ?: [];
 
     $valid_scopes = [
@@ -47,15 +50,17 @@ $app->post("/token", function ($request, $response, $arguments) {
         "scope" => $scopes
     ];
 
-    $secret = getenv("JWT_SECRET");
+    $secret = $_ENV["JWT_SECRET"];
     $token = JWT::encode($payload, $secret, "HS256");
 
     $data["token"] = $token;
     $data["expires"] = $future->getTimeStamp();
 
+    $body = $response->getBody();
+    $body->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+
     return $response->withStatus(201)
-        ->withHeader("Content-Type", "application/json")
-        ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+        ->withHeader("Content-Type", "application/json");
 });
 
 /* This is just for debugging, not usefull in real life. */

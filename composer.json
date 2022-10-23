@@ -1,6 +1,12 @@
 {
     "name": "tuupola/slim-api-skeleton",
     "description": "Slim 3 + Zend Table Gateway + Monolog API skeleton",
+    "repositories": [
+      {
+        "type": "path",
+        "url": "../negotiation-middleware"
+      }
+    ],
     "type": "project",
     "keywords": [
         "slim",
@@ -24,22 +30,24 @@
     "require": {
         "php": "^7.3|^8.0",
         "crell/api-problem": "^3.3",
-        "gofabian/negotiation-middleware": "^0.1.2",
-        "league/fractal": "^0.13.0",
+        "gofabian/negotiation-middleware": "dev-master",
+        "laminas/laminas-db": "^2.12",
+        "laminas/laminas-hydrator": "^4.0",
+        "laminas/laminas-inputfilter": "^2.11",
+        "league/fractal": "^0.20",
         "league/tactician": "^1.0",
         "lstrojny/functional-php": "^1.6",
-        "micheh/psr7-cache": "^0.5.0",
-        "monolog/monolog": "^1.17",
-        "robmorgan/phinx": "^0.9.2",
-        "slim/slim": "^3.9",
+        "monolog/monolog": "*",
+        "php-di/php-di": "^6.4",
+        "psr/http-server-middleware": "^1.0",
+        "robmorgan/phinx": "^0.13.1",
+        "slim/psr7": "^1.5",
+        "slim/slim": "^4.10",
         "tuupola/base62": "^2.0",
         "tuupola/cors-middleware": "^1.0",
         "tuupola/slim-basic-auth": "^3.2",
         "tuupola/slim-jwt-auth": "^3.1",
-        "vlucas/phpdotenv": "^2.0",
-        "laminas/laminas-db": "^2.12",
-        "laminas/laminas-hydrator": "^3.2",
-        "laminas/laminas-inputfilter": "^2.11"
+        "vlucas/phpdotenv": "^5.5"
     },
     "autoload": {
         "psr-4": {
@@ -52,9 +60,14 @@
         }
     },
     "require-dev": {
-        "overtrue/phplint": "^1.0",
+        "n98/junit-xml": "^1.1",
+        "overtrue/phplint": "^5.3.0",
         "phpunit/phpunit": "^7.3|^9.3",
         "squizlabs/php_codesniffer": "^3.5.4",
+        "symfony/console": "^6.1",
+        "symfony/finder": "^6.1",
+        "symfony/process": "^6.1",
+        "symfony/yaml": "^6.1",
         "tuupola/http-factory": "^1.0"
     }
 }

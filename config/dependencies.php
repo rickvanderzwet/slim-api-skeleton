@@ -46,36 +46,36 @@ use Skeleton\Domain\Todo;
 
 $container = $app->getContainer();
 
-$container["commandBus"] = function ($container) {
+$container->set("commandBus", function(\Psr\Container\ContainerInterface $container) {
     $inflector = new HandleInflector();
 
     $locator = new InMemoryLocator();
     $locator->addHandler(
-        new CreateTodoHandler($container["todoRepository"]),
+        new CreateTodoHandler($container->get("todoRepository")),
         CreateTodoCommand::class
     );
     $locator->addHandler(
-        new ReadTodoHandler($container["todoRepository"]),
+        new ReadTodoHandler($container->get("todoRepository")),
         ReadTodoQuery::class
     );
     $locator->addHandler(
-        new ReadTodoCollectionHandler($container["todoRepository"]),
+        new ReadTodoCollectionHandler($container->get("todoRepository")),
         ReadTodoCollectionQuery::class
     );
     $locator->addHandler(
-        new LatestTodoHandler($container["todoRepository"]),
+        new LatestTodoHandler($container->get("todoRepository")),
         LatestTodoQuery::class
     );
     $locator->addHandler(
-        new DeleteTodoHandler($container["todoRepository"]),
+        new DeleteTodoHandler($container->get("todoRepository")),
         DeleteTodoCommand::class
     );
     $locator->addHandler(
-        new UpdateTodoHandler($container["todoRepository"]),
+        new UpdateTodoHandler($container->get("todoRepository")),
         UpdateTodoCommand::class
     );
     $locator->addHandler(
-        new ReplaceTodoHandler($container["todoRepository"]),
+        new ReplaceTodoHandler($container->get("todoRepository")),
         ReplaceTodoCommand::class
     );
 
@@ -88,29 +88,28 @@ $container["commandBus"] = function ($container) {
     );
 
     return new CommandBus([$commandHandlerMiddleware]);
-};
+});
 
-$container["todoRepository"] = function ($container) {
-
+$container->set("todoRepository", function(\Psr\Container\ContainerInterface $container) {
     return new ZendTodoRepository([
         "driver" => "Mysqli",
-        "database" => getenv("DB_NAME"),
-        "username" => getenv("DB_USER"),
-        "password" => getenv("DB_PASSWORD"),
-        "hostname" => getenv("DB_HOST"),
+        "database" => $_ENV["DB_NAME"],
+        "username" => $_ENV["DB_USER"],
+        "password" => $_ENV["DB_PASSWORD"],
+        "hostname" => $_ENV["DB_HOST"],
         "charset" => "utf8",
     ]);
-};
+});
 
-$container["transformTodoService"] = function ($container) {
+$container->set("transformTodoService", function(\Psr\Container\ContainerInterface $container) {
     return new TransformTodoService;
-};
+});
 
-$container["transformTodoCollectionService"] = function ($container) {
-    return new TransformTodoCollectionService;
-};
+$container->set("transformTodoCollectionService", function(\Psr\Container\ContainerInterface $container) {
+        return new TransformTodoCollectionService;
+});
 
-$container["logger"] = function ($container) {
+$container->set("logger", function(\Psr\Container\ContainerInterface $container) {
     $logger = new Logger("slim");
 
     $formatter = new LineFormatter(
@@ -126,4 +125,4 @@ $container["logger"] = function ($container) {
     $logger->pushHandler($rotating);
 
     return $logger;
-};
+});

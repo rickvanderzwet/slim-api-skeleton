@@ -37,16 +37,15 @@ use Skeleton\Domain\{
 };
 
 $app->get("/todos", function ($request, $response, $arguments) {
-
     /* Check if token has needed scope. */
-    if (false === $this->token->hasScope(["todo.all", "todo.list"])) {
+    if (false === $this->get('token')->hasScope(["todo.all", "todo.list"])) {
         return new ForbiddenResponse("Token not allowed to list todos", 403);
     }
 
     /* Add Last-Modified and ETag headers to response when atleast one todo exists. */
     try {
         $query = new LatestTodoQuery;
-        $first = $this->commandBus->handle($query);
+        $first = $this->get('commandBus')->handle($query);
         $response = $this->cache->withEtag($response, $first->etag());
         $response = $this->cache->withLastModified($response, $first->timestamp());
     } catch (TodoNotFoundException $exception) {

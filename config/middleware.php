@@ -21,46 +21,66 @@ use Tuupola\Middleware\JwtAuthentication;
 use Tuupola\Middleware\HttpBasicAuthentication;
 use Tuupola\Middleware\CorsMiddleware;
 use Skeleton\Application\Response\UnauthorizedResponse;
+use Slim\Factory\AppFactory;
+
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
+
+function unauthorizedResponse($response, $message, $status = 401)
+{
+    $problem = new ApiProblem($message, "about:blank");
+    $problem->setStatus($status);
+
+    $body = $response->getBody();
+    $body->write($problem->asJson(true));
+
+    return $response
+        ->withHeader("Content-type", "application/problem+json")
+        ->withStatus($status);
+}
 
 $container = $app->getContainer();
 
-$container["HttpBasicAuthentication"] = function ($container) {
+$container->set("HttpBasicAuthentication", function (\Psr\Container\ContainerInterface $container) {
     return new HttpBasicAuthentication([
         "path" => "/token",
         "relaxed" => ["192.168.50.52", "127.0.0.1", "localhost"],
         "error" => function ($response, $arguments) {
-            return new UnauthorizedResponse($arguments["message"], 401);
+            return unauthorizedResponse($response, $arguments["message"], 401);
         },
         "users" => [
             "test" => "test"
         ]
     ]);
-};
+});
 
-$container["token"] = function ($container) {
+$container->set("token", function (\Psr\Container\ContainerInterface $container) {
+    error_log("Function token called");
     return new Token([]);
-};
+});
 
-$container["JwtAuthentication"] = function ($container) {
+$container->set("JwtAuthentication", function (\Psr\Container\ContainerInterface $container) {
     return new JwtAuthentication([
         "path" => "/",
         "ignore" => ["/token", "/info"],
-        "secret" => getenv("JWT_SECRET"),
-        "logger" => $container["logger"],
+        "secret" => $_ENV["JWT_SECRET"],
+        "logger" => $container->get("logger"),
         "attribute" => false,
         "relaxed" => ["192.168.50.52", "127.0.0.1", "localhost"],
         "error" => function ($response, $arguments) {
-            return new UnauthorizedResponse($arguments["message"], 401);
+            return unauthorizedResponse($response, $arguments["message"], 401);
         },
         "before" => function ($request, $arguments) use ($container) {
-            $container["token"]->populate($arguments["decoded"]);
+            $container->get("token")->populate($arguments["decoded"]);
         }
     ]);
-};
+});
 
-$container["CorsMiddleware"] = function ($container) {
+$container->set("CorsMiddleware", function (\Psr\Container\ContainerInterface $container) {
     return new CorsMiddleware([
-        "logger" => $container["logger"],
+        "logger" => $container->get("logger"),
         "origin" => ["*"],
         "methods" => ["GET", "POST", "PUT", "PATCH", "DELETE"],
         "headers.allow" => ["Authorization", "If-Match", "If-Unmodified-Since"],
@@ -68,22 +88,39 @@ $container["CorsMiddleware"] = function ($container) {
         "credentials" => true,
         "cache" => 60,
         "error" => function ($request, $response, $arguments) {
-            return new UnauthorizedResponse($arguments["message"], 401);
+            return unauthorizedResponse($response, $arguments["message"], 401);
         }
     ]);
-};
+});
 
-$container["NegotiationMiddleware"] = function ($container) {
-    return new NegotiationMiddleware([
-        "accept" => ["application/json"]
-    ]);
-};
+class JsonBodyParserMiddleware implements MiddlewareInterface
+{
+    public function process(Request $request, RequestHandler $handler): Response
+    {
+        $contentType = $request->getHeaderLine('Content-Type');
+
+        if (strstr($contentType, 'application/json')) {
+            $contents = json_decode(file_get_contents('php://input'), true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $request = $request->withParsedBody($contents);
+            }
+        }
+
+        return $handler->handle($request);
+    }
+}
+$app->add(new JsonBodyParserMiddleware());
+
 
 $app->add("HttpBasicAuthentication");
 $app->add("JwtAuthentication");
 $app->add("CorsMiddleware");
-$app->add("NegotiationMiddleware");
+$app->add(new NegotiationMiddleware([
+            "accept" => ["application/json"],
+            ],
+            $app->getResponseFactory(),
+        ));
 
-$container["cache"] = function ($container) {
+$container->set("cache", function (\Psr\Container\ContainerInterface $container) {
     return new CacheUtil;
-};
+});

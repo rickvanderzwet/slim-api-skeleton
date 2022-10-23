@@ -18,12 +18,11 @@ namespace Skeleton\Application\Response;
 
 use Crell\ApiProblem\ApiProblem;
 use Slim\Http\Headers;
-use Slim\Http\Response;
 use Slim\Http\Stream;
 
-class UnauthorizedResponse extends Response
+class UnauthorizedResponse
 {
-    public function __construct($message, $status = 401)
+    public function __construct($response, $message, $status = 401)
     {
         $problem = new ApiProblem($message, "about:blank");
         $problem->setStatus($status);
