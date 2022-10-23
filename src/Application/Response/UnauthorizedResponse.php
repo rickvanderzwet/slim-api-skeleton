@@ -17,21 +17,20 @@ declare(strict_types=1);
 namespace Skeleton\Application\Response;
 
 use Crell\ApiProblem\ApiProblem;
-use Slim\Http\Headers;
-use Slim\Http\Stream;
+use Slim\Psr7\Response;
 
-class UnauthorizedResponse
+class UnauthorizedResponse extends Response
 {
-    public function __construct($response, $message, $status = 401)
+    public function __construct($message, $status = 404)
     {
-        $problem = new ApiProblem($message, "about:blank");
-        $problem->setStatus($status);
+        parent::__construct($status);
+        $this->withHeader("Content-type", "application/problem+json");
 
-        $handle = fopen("php://temp", "wb+");
-        $body = new Stream($handle);
-        $body->write($problem->asJson(true));
-        $headers = new Headers;
-        $headers->set("Content-type", "application/problem+json");
-        parent::__construct($status, $headers, $body);
+        $problem = new ApiProblem(
+            $message,
+            "http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html"
+        );
+        $problem->setStatus($status);
+        $this->getBody()->write($problem->asJson(true));
     }
 }

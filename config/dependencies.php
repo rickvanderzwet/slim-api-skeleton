@@ -46,7 +46,7 @@ use Skeleton\Domain\Todo;
 
 $container = $app->getContainer();
 
-$container->set("commandBus", function(\Psr\Container\ContainerInterface $container) {
+$container->set("commandBus", function (\Psr\Container\ContainerInterface $container) {
     $inflector = new HandleInflector();
 
     $locator = new InMemoryLocator();
@@ -90,7 +90,7 @@ $container->set("commandBus", function(\Psr\Container\ContainerInterface $contai
     return new CommandBus([$commandHandlerMiddleware]);
 });
 
-$container->set("todoRepository", function(\Psr\Container\ContainerInterface $container) {
+$container->set("todoRepository", function (\Psr\Container\ContainerInterface $container) {
     return new ZendTodoRepository([
         "driver" => "Mysqli",
         "database" => $_ENV["DB_NAME"],
@@ -101,15 +101,15 @@ $container->set("todoRepository", function(\Psr\Container\ContainerInterface $co
     ]);
 });
 
-$container->set("transformTodoService", function(\Psr\Container\ContainerInterface $container) {
+$container->set("transformTodoService", function (\Psr\Container\ContainerInterface $container) {
     return new TransformTodoService;
 });
 
-$container->set("transformTodoCollectionService", function(\Psr\Container\ContainerInterface $container) {
+$container->set("transformTodoCollectionService", function (\Psr\Container\ContainerInterface $container) {
         return new TransformTodoCollectionService;
 });
 
-$container->set("logger", function(\Psr\Container\ContainerInterface $container) {
+$container->set("logger", function (\Psr\Container\ContainerInterface $container) {
     $logger = new Logger("slim");
 
     $formatter = new LineFormatter(

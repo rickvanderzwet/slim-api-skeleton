@@ -15,7 +15,7 @@ class NotFoundResponseTest extends TestCase
         $response = new NotFoundResponse("Yo! MTV Raps");
         $this->assertEquals(
             "application/problem+json",
-            $response->getHeaderLine("Content-type")
+            $response->getHeader("Content-type")
         );
     }
 }

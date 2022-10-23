@@ -36,18 +36,20 @@ $app = AppFactory::create();
 $contentLengthMiddleware = new ContentLengthMiddleware();
 $app->add($contentLengthMiddleware);
 
+// Create the cache provider.
+$cacheProvider = new \Slim\HttpCache\CacheProvider();
+// Register the http cache middleware.
+$app->add(new \Slim\HttpCache\Cache('public', 86400));
+
 require __DIR__ . "/config/dependencies.php";
 require __DIR__ . "/config/handlers.php";
 require __DIR__ . "/config/middleware.php";
 
 $errorMiddleware = $app->addErrorMiddleware(true, true, true);
 
-
 $app->get("/", function ($request, $response, $arguments) {
     print "Here be dragons";
 });
-
-
 
 require __DIR__ . "/routes/token.php";
 require __DIR__ . "/routes/todos.php";

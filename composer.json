@@ -2,10 +2,10 @@
     "name": "tuupola/slim-api-skeleton",
     "description": "Slim 3 + Zend Table Gateway + Monolog API skeleton",
     "repositories": [
-      {
-        "type": "path",
-        "url": "../negotiation-middleware"
-      }
+        {
+            "type": "path",
+            "url": "../negotiation-middleware"
+        }
     ],
     "type": "project",
     "keywords": [
@@ -25,13 +25,17 @@
         }
     ],
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "laminas/laminas-dependency-plugin": true
+        }
     },
     "require": {
         "php": "^7.3|^8.0",
         "crell/api-problem": "^3.3",
         "gofabian/negotiation-middleware": "dev-master",
         "laminas/laminas-db": "^2.12",
+        "laminas/laminas-dependency-plugin": "^2.1",
         "laminas/laminas-hydrator": "^4.0",
         "laminas/laminas-inputfilter": "^2.11",
         "league/fractal": "^0.20",
@@ -41,6 +45,7 @@
         "php-di/php-di": "^6.4",
         "psr/http-server-middleware": "^1.0",
         "robmorgan/phinx": "^0.13.1",
+        "slim/http-cache": "^1.1",
         "slim/psr7": "^1.5",
         "slim/slim": "^4.10",
         "tuupola/base62": "^2.0",
@@ -63,7 +68,7 @@
         "n98/junit-xml": "^1.1",
         "overtrue/phplint": "^5.3.0",
         "phpunit/phpunit": "^7.3|^9.3",
-        "squizlabs/php_codesniffer": "^3.5.4",
+        "squizlabs/php_codesniffer": "^3.7",
         "symfony/console": "^6.1",
         "symfony/finder": "^6.1",
         "symfony/process": "^6.1",

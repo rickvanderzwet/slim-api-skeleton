@@ -10,12 +10,12 @@ use Skeleton\Domain\Todo;
 use Skeleton\Domain\TodoUid;
 use Skeleton\Domain\TodoRepository;
 use Tuupola\Base62;
-use Zend\Db\Adapter\Adapter;
-use Zend\Db\Sql\Select;
-use Zend\Db\TableGateway\TableGateway;
-use Zend\Db\TableGateway\Feature\RowGatewayFeature;
-use Zend\Db\TableGateway\Feature\MetadataFeature;
-use Zend\Db\TableGateway\Feature\FeatureSet;
+use Laminas\Db\Adapter\Adapter;
+use Laminas\Db\Sql\Select;
+use Laminas\Db\TableGateway\TableGateway;
+use Laminas\Db\TableGateway\Feature\RowGatewayFeature;
+use Laminas\Db\TableGateway\Feature\MetadataFeature;
+use Laminas\Db\TableGateway\Feature\FeatureSet;
 use function Functional\map;
 
 class ZendTodoRepository implements TodoRepository
@@ -93,6 +93,8 @@ class ZendTodoRepository implements TodoRepository
         $data = $this->hydrator->extract($todo);
         if ($this->contains($todo)) {
             $where["uid"] = (string) $todo->uid();
+            /* FIXME: Find out where cast to integer is done  */
+            $data["completed"] = 0;
             $this->table->update($data, $where);
         } else {
             $this->table->insert($data);

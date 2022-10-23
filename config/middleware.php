@@ -14,9 +14,9 @@
  */
 
 use Skeleton\Domain\Token;
+use Skeleton\Middleware\JsonBodyParserMiddleware;
 use Crell\ApiProblem\ApiProblem;
 use Gofabian\Negotiation\NegotiationMiddleware;
-use Micheh\Cache\CacheUtil;
 use Tuupola\Middleware\JwtAuthentication;
 use Tuupola\Middleware\HttpBasicAuthentication;
 use Tuupola\Middleware\CorsMiddleware;
@@ -93,34 +93,19 @@ $container->set("CorsMiddleware", function (\Psr\Container\ContainerInterface $c
     ]);
 });
 
-class JsonBodyParserMiddleware implements MiddlewareInterface
-{
-    public function process(Request $request, RequestHandler $handler): Response
-    {
-        $contentType = $request->getHeaderLine('Content-Type');
+// Register the http cache middleware.
+$app->add(new \Slim\HttpCache\Cache('public', 86400));
 
-        if (strstr($contentType, 'application/json')) {
-            $contents = json_decode(file_get_contents('php://input'), true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $request = $request->withParsedBody($contents);
-            }
-        }
+// Create the cache provider.
+$cacheProvider = new \Slim\HttpCache\CacheProvider();
 
-        return $handler->handle($request);
-    }
-}
 $app->add(new JsonBodyParserMiddleware());
-
-
 $app->add("HttpBasicAuthentication");
 $app->add("JwtAuthentication");
 $app->add("CorsMiddleware");
-$app->add(new NegotiationMiddleware([
+$app->add(new NegotiationMiddleware(
+    [
             "accept" => ["application/json"],
             ],
-            $app->getResponseFactory(),
-        ));
-
-$container->set("cache", function (\Psr\Container\ContainerInterface $container) {
-    return new CacheUtil;
-});
+    $app->getResponseFactory(),
+));
