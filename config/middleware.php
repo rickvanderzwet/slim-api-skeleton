@@ -64,7 +64,7 @@ $container->set("token", function (\Psr\Container\ContainerInterface $container)
 $container->set("JwtAuthentication", function (\Psr\Container\ContainerInterface $container) {
     return new JwtAuthentication([
         "path" => "/",
-        "ignore" => ["/token", "/info"],
+        "ignore" => ["/token", "/info", '/swagger.json'],
         "secret" => $_ENV["JWT_SECRET"],
         "logger" => $container->get("logger"),
         "attribute" => false,
@@ -78,34 +78,30 @@ $container->set("JwtAuthentication", function (\Psr\Container\ContainerInterface
     ]);
 });
 
-$container->set("CorsMiddleware", function (\Psr\Container\ContainerInterface $container) {
-    return new CorsMiddleware([
-        "logger" => $container->get("logger"),
-        "origin" => ["*"],
-        "methods" => ["GET", "POST", "PUT", "PATCH", "DELETE"],
-        "headers.allow" => ["Authorization", "If-Match", "If-Unmodified-Since"],
-        "headers.expose" => ["Authorization", "Etag"],
-        "credentials" => true,
-        "cache" => 60,
-        "error" => function ($request, $response, $arguments) {
-            return unauthorizedResponse($response, $arguments["message"], 401);
-        }
-    ]);
-});
-
-// Register the http cache middleware.
-$app->add(new \Slim\HttpCache\Cache('public', 86400));
-
-// Create the cache provider.
-$cacheProvider = new \Slim\HttpCache\CacheProvider();
+// $container->set("CorsMiddleware", function (\Psr\Container\ContainerInterface $container) {
+//     return new CorsMiddleware([
+//         "logger" => $container->get("logger"),
+//         "origin" => ["*"],
+//         "methods" => ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+//         "headers.allow" => ["Authorization", "If-Match", "If-Unmodified-Since"],
+//         "headers.expose" => ["Authorization", "Etag"],
+//         "credentials" => true,
+//         "cache" => 60,
+//         "error" => function ($request, $response, $arguments) {
+//             return unauthorizedResponse($response, $arguments["message"], 401);
+//         }
+//     ]);
+// });
 
 $app->add(new JsonBodyParserMiddleware());
 $app->add("HttpBasicAuthentication");
 $app->add("JwtAuthentication");
-$app->add("CorsMiddleware");
+//$app->add("CorsMiddleware");
+
+
 $app->add(new NegotiationMiddleware(
-    [
-            "accept" => ["application/json"],
-            ],
+    [  
+        "accept" => ["application/json"],
+    ],
     $app->getResponseFactory(),
 ));

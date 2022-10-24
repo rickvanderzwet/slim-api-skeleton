@@ -1,0 +1,169 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Slim API Skeleton example",
+    "version": "v1"
+  },
+  "servers": [{
+    "url": "http://localhost:8080/"
+  }],
+  "paths": {
+    "/token": {
+      "post": {
+        "tags": [
+          "Login"
+        ],
+        "requestBody": {
+            "required": true,
+            "content": {
+              "application/json":{
+                "schema": {
+                  "$ref": "#/components/schemas/TokenRequest"
+                }
+              }
+            }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ]
+      }
+    },
+    "/todos": {
+      "get": {
+        "tags": [
+          "Todos"
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Todo"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid tag value"
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": [
+              "todo.all"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  
+  "components": {
+    "schemas": {
+      "Todo": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "readOnly": true
+          },
+          "expires": {
+            "type": "integer",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Token": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "readOnly": true
+          },
+          "expires": {
+            "type": "integer",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TokenRequest": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "example": "role.all"
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "readOnly": true
+          },
+          "type": {
+            "type": "string",
+            "readOnly": true
+          },
+          "status": {
+            "type": "integer",
+            "readOnly": true
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "description": "JWT Authorization header using the Bearer scheme.",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "basicAuth": {
+        "type": "http",
+        "description": "Basic Authorization header.",
+        "scheme": "basic"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ]
+}
